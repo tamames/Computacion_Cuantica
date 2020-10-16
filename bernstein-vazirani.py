@@ -64,8 +64,6 @@ shots=1024
 results=execute(bv_circuit,backend=backend,shots=shots).result()
 answer=results.get_counts()
 
-print(s[::-1])
-
 plot_histogram(answer)
 plt.show()#en jupyter notebook no hace falta esto
 
