@@ -9,6 +9,7 @@ from qiskit_textbook.tools import simon_oracle
 
 # import other things
 from numpy.random import randint
+import matplotlib.pyplot as plt
 
 def oraculo(b,n):
 
@@ -57,28 +58,38 @@ def oraculo(b,n):
     return oracle
 
 
-
-
-n=4# int(input('Introduce el numero de caracteres de tu str: '))
+n=3# int(input('Introduce el numero de caracteres de tu str: '))
 
 # se genera una cadena de longitud n aleatoria de 0 y 1
-# t=randint(2,size=n)
-# b=''.join([str(i) for i in t])
-b='0000'
+t=randint(2,size=n)
+b=''.join([str(i) for i in t])
 
-# simon=QuantumCircuit(2*n,n)
-#
-# #aplicamos Hadamard a todo
-# simon.h(range(n))
-#
-# simon.barrier()
-#
-# simon+=simon_oracle(b)
-#hemos descubierto como funciona el oraculo de simon, EUREKAA!!
 
-print(b,'\n QISKIT \n')
-k=simon_oracle(b)
-print(k.draw())
-print('\n\n MIO \n')
-j=oraculo(b,n)
-print(j.draw())
+simon=QuantumCircuit(2*n,n)
+
+#aplicamos Hadamard al primer registro
+simon.h(range(n))
+
+simon.barrier()
+
+# añadimos al circuito nuestro oraculo
+simon+=oraculo(b,n)
+simon.barrier()
+
+# y volvemos a aplicar Hadamard al segundo registro
+simon.h(range(n))
+
+# medimos el segundo registro
+simon.measure(range(n),range(n))
+
+
+print(simon.draw())
+
+# simulamos el circuito
+backend = BasicAer.get_backend('qasm_simulator')
+shots = 1024
+results = execute(simon, backend=backend, shots=shots).result()
+counts = results.get_counts()
+plot_histogram(counts)
+plt.show()
+#ahora falta resolver el sistema para encontrar b
