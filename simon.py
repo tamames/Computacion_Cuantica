@@ -83,13 +83,48 @@ simon.h(range(n))
 simon.measure(range(n),range(n))
 
 
-print(simon.draw())
+# print(simon.draw())
 
 # simulamos el circuito
 backend = BasicAer.get_backend('qasm_simulator')
 shots = 1024
 results = execute(simon, backend=backend, shots=shots).result()
 counts = results.get_counts()
-plot_histogram(counts)
-plt.show()
+# plot_histogram(counts)
+# plt.show()
 #ahora falta resolver el sistema para encontrar b
+
+# tenemos una forma de encontrar el string secreto
+
+# esto nos genera una lista con los resultados que se han obtenido de la simulacion
+z=list(counts)
+
+def dotproduct(z,b):
+    # aqui definimos una funcion para calcular el producto escalar en modulo 2
+    valor=0
+    for i in range(len(b)):
+        valor+=int(b[i])*int(z[i])
+    return (valor%2)
+
+
+
+def comprobar(z):
+    # ahora lo que vamos a hacer es ver que str de los posibles es ortogonal a
+    # los cuatro que nos han salido, ese str sera el str secreto que estamos buscando
+    todoslosstring=[format(i,'0'+str(n)+'b') for i in range(2**n)] # esto crea una lista
+    # con todos los numeros entre 0 y 2^n en binario
+    # nos sirve para comprobar que valores son ortogonales a los que salen de la medida
+    result=''
+    for numero in todoslosstring:
+        contador=0
+        for i in z:
+            if (dotproduct(i,numero)==0):
+                contador+=1
+        if (contador==len(z)):
+            result=numero
+
+    return result
+
+secreto=comprobar(z)
+print(secreto)
+print(b)
